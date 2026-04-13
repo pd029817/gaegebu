@@ -1,136 +1,266 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f0f4f8;
-  color: #333;
-  min-height: 100vh;
-  padding: 24px 16px;
+/* ── 리셋 ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+body {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  background: #f0f4f8;
+  color: #2d3748;
+  min-height: 100vh;
+  padding: 20px 16px 60px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── 네비게이션 ── */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.navItem {
+  display: inline-block;
+  padding: 7px 20px;
+  border-radius: 99px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #718096;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  transition: all 0.15s;
+}
+
+.navItem:hover  { color: #3182ce; }
+.navItem.active { background: #3182ce; color: #ffffff; }
+
+/* ── h1 ── */
 h1 {
   text-align: center;
-  font-size: 1.8rem;
-  margin-bottom: 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #2d3748;
+  margin-bottom: 20px;
 }
 
 /* ── 요약 카드 ── */
 .summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  max-width: 600px;
-  margin: 0 auto 24px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-width: 720px;
+  margin: 0 auto 16px;
 }
 
 .card {
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 14px 12px;
+  padding: 12px 10px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border-top: 3px solid #e2e8f0;
 }
 
-.card .label {
-  font-size: 0.72rem;
-  color: #888;
-  margin-bottom: 6px;
-}
+.card.income   { border-top-color: #38a169; }
+.card.fixed    { border-top-color: #d97706; }
+.card.variable { border-top-color: #e53e3e; }
+.card.invest   { border-top-color: #0987a0; }
+.card.balance  { border-top-color: #3182ce; }
 
-.card .amount {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
+.card .label  { font-size: 0.68rem; color: #a0aec0; margin-bottom: 4px; font-weight: 500; }
+.card .amount { font-size: 0.92rem; font-weight: 700; }
 
 .card.income .amount   { color: #38a169; }
-.card.fixed .amount    { color: #c05621; }
+.card.fixed .amount    { color: #d97706; }
 .card.variable .amount { color: #e53e3e; }
+.card.invest .amount   { color: #0987a0; }
 .card.balance .amount  { color: #3182ce; }
 
-/* ── 폼 ── */
-.formBox {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  max-width: 600px;
-  margin: 0 auto 24px;
+/* ── 입력 폼 ── */
+.quickForm {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+  max-width: 720px;
+  margin: 0 auto 16px;
 }
 
-.formBox h2 {
-  font-size: 1rem;
+/* 유형 버튼 */
+.typeRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
   margin-bottom: 14px;
-  color: #555;
 }
 
-.formRow {
+.typeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 11px 4px;
+  border-radius: 12px;
+  border: 1.5px solid #e8edf2;
+  background: #f0f4f8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a0aec0;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.4;
+}
+
+.typeEmoji { font-size: 1.25rem; line-height: 1; }
+
+.typeBtn:hover { border-color: #cbd5e0; color: #4a5568; background: #edf2f7; }
+
+.typeBtn.income.active   { border-color: #38a169; background: #f0fff4; color: #38a169; }
+.typeBtn.fixed.active    { border-color: #d97706; background: #fffbeb; color: #d97706; }
+.typeBtn.variable.active { border-color: #e53e3e; background: #fff5f5; color: #e53e3e; }
+.typeBtn.invest.active   { border-color: #0987a0; background: #e6fffa; color: #0987a0; }
+
+/* 카테고리 칩 */
+.catRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  margin-bottom: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.catChip {
+  padding: 5px 13px;
+  border-radius: 99px;
+  border: 1.5px solid #e8edf2;
+  background: #f0f4f8;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+}
+
+.catChip:hover { border-color: #cbd5e0; color: #2d3748; background: #edf2f7; }
+
+.catChip.active.income   { border-color: #38a169; background: #f0fff4; color: #38a169; font-weight: 700; }
+.catChip.active.fixed    { border-color: #d97706; background: #fffbeb; color: #d97706; font-weight: 700; }
+.catChip.active.variable { border-color: #e53e3e; background: #fff5f5; color: #e53e3e; font-weight: 700; }
+.catChip.active.invest   { border-color: #0987a0; background: #e6fffa; color: #0987a0; font-weight: 700; }
+
+/* 입력 행 */
+.inputRow {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.formRow input,
-.formRow select {
-  flex: 1;
-  min-width: 0;
-  padding: 11px 12px;
-  border: 1px solid #ddd;
+.inputDesc {
+  flex: 2;
+  padding: 11px 13px;
+  border: 1.5px solid #e8edf2;
   border-radius: 8px;
-  font-size: 1rem;
+  background: #f0f4f8;
+  color: #2d3748;
+  font-size: 0.93rem;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
   outline: none;
-  transition: border-color 0.2s;
-  /* 모바일에서 iOS 기본 스타일 제거 */
-  -webkit-appearance: none;
-  appearance: none;
-  background: white;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.formRow select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
+.inputAmount {
+  flex: 1;
+  min-width: 80px;
+  padding: 11px 13px;
+  border: 1.5px solid #e8edf2;
+  border-radius: 8px;
+  background: #f0f4f8;
+  color: #2d3748;
+  font-size: 0.93rem;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  outline: none;
+  text-align: right;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.formRow input:focus,
-.formRow select:focus {
-  border-color: #63b3ed;
+.inputDesc:focus, .inputAmount:focus {
+  border-color: #3182ce;
+  background: #ffffff;
 }
 
-/* ── 버튼 ── */
-.btn {
-  padding: 10px 20px;
+.inputDesc::placeholder, .inputAmount::placeholder { color: #a0aec0; }
+
+.addBtn {
+  flex-shrink: 0;
+  padding: 11px 18px;
   border: none;
   border-radius: 8px;
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: bold;
-  transition: opacity 0.2s;
-  /* 모바일 최소 터치 영역 */
-  min-height: 44px;
+  white-space: nowrap;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  transition: filter 0.15s;
 }
 
-.btn:hover { opacity: 0.85; }
-.btn:active { opacity: 0.7; }
+.addBtn:hover  { filter: brightness(1.07); }
+.addBtn:active { filter: brightness(0.93); }
 
-.btnAdd {
-  background: #3182ce;
-  color: white;
-  width: 100%;
-  margin-top: 10px;
-  padding: 14px;
-  font-size: 1rem;
+.addBtn.income   { background: #38a169; }
+.addBtn.fixed    { background: #d97706; }
+.addBtn.variable { background: #e53e3e; }
+.addBtn.invest   { background: #0987a0; }
+
+/* 날짜 */
+.dateRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* ── 목록 ── */
+.dateToggle {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  color: #a0aec0;
+  cursor: pointer;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  transition: color 0.15s;
+}
+
+.dateToggle:hover { color: #718096; }
+
+.dateInput {
+  padding: 5px 10px;
+  border: 1.5px solid #e8edf2;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  background: #f0f4f8;
+  color: #2d3748;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  outline: none;
+}
+
+/* ── 내역 목록 ── */
 .listBox {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  max-width: 600px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+  max-width: 720px;
   margin: 0 auto;
 }
 
@@ -138,331 +268,227 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
-}
-
-.listHeader h2 { font-size: 1rem; color: #555; }
-
-.filterRow {
-  display: flex;
+  margin-bottom: 12px;
   gap: 8px;
-  margin-bottom: 14px;
   flex-wrap: wrap;
 }
 
-.filterRow select,
-.filterRow input {
-  flex: 1;
-  min-width: 0;
-  padding: 9px 10px;
-  border: 1px solid #ddd;
+.listHeader h2 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.listFilters { display: flex; gap: 6px; }
+
+.listFilters select {
+  padding: 6px 10px;
+  border: 1.5px solid #e8edf2;
   border-radius: 8px;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
+  color: #718096;
+  background: #ffffff;
+  cursor: pointer;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
   outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-  background: white;
 }
 
-.filterRow select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-}
-
+/* 내역 항목 */
 .entry {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 13px 0;
-  border-bottom: 1px solid #f0f0f0;
-  gap: 8px;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .entry:last-child { border-bottom: none; }
 
+.entryDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.entryDot.income   { background: #38a169; }
+.entryDot.fixed    { background: #d97706; }
+.entryDot.variable { background: #e53e3e; }
+.entryDot.invest   { background: #0987a0; }
+
 .entryLeft { flex: 1; min-width: 0; }
 
 .entryDesc {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #2d3748;
 }
 
-.entryMeta {
-  font-size: 0.78rem;
-  color: #999;
-  margin-top: 2px;
-}
+.entryMeta { font-size: 0.73rem; color: #a0aec0; margin-top: 2px; }
 
 .entryAmount {
-  font-size: 1rem;
-  font-weight: bold;
+  font-size: 0.92rem;
+  font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .entryAmount.income   { color: #38a169; }
-.entryAmount.fixed    { color: #c05621; }
+.entryAmount.fixed    { color: #d97706; }
 .entryAmount.variable { color: #e53e3e; }
+.entryAmount.invest   { color: #0987a0; }
 
 .btnDel {
   background: none;
   border: none;
-  color: #ccc;
-  font-size: 1rem;
+  color: #e2e8f0;
+  font-size: 0.85rem;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: color 0.2s;
-  flex-shrink: 0;
-  /* 모바일 터치 영역 확보 */
-  min-width: 36px;
-  min-height: 36px;
+  padding: 6px;
+  min-width: 30px;
+  min-height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  transition: color 0.15s, background 0.15s;
 }
 
-.btnDel:hover { color: #e53e3e; }
+.btnDel:hover { color: #e53e3e; background: #fff5f5; }
 
 .empty {
   text-align: center;
-  color: #bbb;
-  padding: 30px 0;
-  font-size: 0.95rem;
+  color: #a0aec0;
+  padding: 32px 0;
+  font-size: 0.9rem;
 }
 
 .badge {
   display: inline-block;
-  font-size: 0.7rem;
-  padding: 2px 7px;
-  border-radius: 20px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 99px;
   margin-left: 5px;
   vertical-align: middle;
-  white-space: nowrap;
 }
 
-.badge.income   { background: #c6f6d5; color: #276749; }
-.badge.fixed    { background: #feebc8; color: #7b341e; }
-.badge.variable { background: #fed7d7; color: #9b2c2c; }
-
-/* ── 반응형: 태블릿 이하 (600px) ── */
-@media (max-width: 600px) {
-  body {
-    padding: 16px 12px;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-    margin-bottom: 16px;
-  }
-
-  /* 카드 2×2 그리드 */
-  .summary {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .card {
-    padding: 12px 8px;
-  }
-
-  .card .amount {
-    font-size: 1rem;
-  }
-
-  .formBox,
-  .listBox {
-    padding: 16px 14px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-  }
-
-  /* 폼 요소 세로 배치 */
-  .formRow {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .formRow input,
-  .formRow select {
-    width: 100%;
-    font-size: 1rem;
-  }
-
-  /* 필터도 세로 배치 */
-  .filterRow {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .filterRow select,
-  .filterRow input {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 10px 12px;
-  }
-
-  .entryDesc {
-    font-size: 0.9rem;
-  }
-
-  .entryAmount {
-    font-size: 0.95rem;
-  }
-}
-
-/* ── 반응형: 소형 폰 (380px 이하) ── */
-@media (max-width: 380px) {
-  h1 { font-size: 1.3rem; }
-
-  .card .label { font-size: 0.68rem; }
-  .card .amount { font-size: 0.9rem; }
-
-  .badge { display: none; }
-}
-
-/* ── 네비게이션 ── */
-.nav {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.navItem {
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #888;
-  background: white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.navItem:hover { color: #3182ce; }
-.navItem.active { background: #3182ce; color: white; }
+.badge.income   { background: #f0fff4; color: #38a169; }
+.badge.fixed    { background: #fffbeb; color: #d97706; }
+.badge.variable { background: #fff5f5; color: #e53e3e; }
+.badge.invest   { background: #e6fffa; color: #0987a0; }
 
 /* ── 대시보드 ── */
 .yearSelector {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
 .yearBtn {
   padding: 6px 18px;
-  border: 2px solid #ddd;
-  border-radius: 20px;
-  background: white;
-  font-size: 0.9rem;
+  border-radius: 99px;
+  border: 1.5px solid #e8edf2;
+  background: #ffffff;
+  font-size: 0.88rem;
   font-weight: 600;
+  color: #718096;
   cursor: pointer;
-  color: #888;
-  transition: all 0.2s;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  transition: all 0.15s;
 }
 
-.yearBtn:hover { border-color: #3182ce; color: #3182ce; }
-.yearBtn.active { background: #3182ce; border-color: #3182ce; color: white; }
+.yearBtn:hover  { border-color: #3182ce; color: #3182ce; }
+.yearBtn.active { background: #3182ce; border-color: #3182ce; color: #ffffff; }
 
-.chartBox {
-  background: white;
+.chartBox, .tableBox {
+  background: #ffffff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  max-width: 700px;
-  margin: 0 auto 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  max-width: 720px;
+  margin: 0 auto 14px;
 }
 
 .chartTitle {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #555;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   margin-bottom: 16px;
 }
 
 .chartTooltip {
-  background: white;
+  background: #ffffff;
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 10px 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  font-size: 0.85rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+  font-size: 0.82rem;
 }
 
-.chartTooltipTitle {
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: #333;
-}
+.chartTooltipTitle { font-weight: 700; margin-bottom: 4px; color: #2d3748; }
 
-/* ── 테이블 ── */
-.tableBox {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  max-width: 700px;
-  margin: 0 auto 20px;
-}
+.tableWrap { overflow-x: auto; }
 
-.tableWrap {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-}
+.table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
 
 .table th {
-  padding: 10px 12px;
+  padding: 9px 10px;
   text-align: right;
-  background: #f7fafc;
-  color: #666;
-  font-weight: 600;
-  border-bottom: 2px solid #eee;
+  background: #f0f4f8;
+  color: #a0aec0;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1.5px solid #e8edf2;
 }
 
 .table th:first-child { text-align: left; }
 
 .table td {
-  padding: 10px 12px;
+  padding: 9px 10px;
   text-align: right;
   border-bottom: 1px solid #f5f5f5;
-  color: #444;
+  color: #718096;
 }
 
-.table td:first-child { text-align: left; font-weight: 500; }
+.table td:first-child { text-align: left; font-weight: 600; color: #2d3748; }
+.table td.income   { color: #38a169; font-weight: 600; }
+.table td.fixed    { color: #d97706; font-weight: 600; }
+.table td.variable { color: #e53e3e; font-weight: 600; }
+.table td.invest   { color: #0987a0; font-weight: 600; }
+.table tr.empty-row td { color: #e2e8f0; }
+.table tfoot .total-row td { font-weight: 700; background: #f0f4f8; border-top: 1.5px solid #e8edf2; }
 
-.table td.income   { color: #38a169; }
-.table td.fixed    { color: #c05621; }
-.table td.variable { color: #e53e3e; }
-
-.table tr.empty-row td { color: #ccc; }
-
-.table tfoot .total-row td {
-  font-weight: 700;
-  background: #f7fafc;
-  border-top: 2px solid #eee;
-}
-
+/* ── 반응형 ── */
 @media (max-width: 600px) {
-  .chartBox, .tableBox {
-    padding: 16px 12px;
-    border-radius: 10px;
-  }
+  body { padding: 14px 12px 60px; }
+  h1   { font-size: 1.3rem; margin-bottom: 14px; }
 
-  .table { font-size: 0.8rem; }
-  .table th, .table td { padding: 8px 8px; }
+  .summary { grid-template-columns: repeat(3, 1fr); }
+  .summary .card.balance { grid-column: span 3; }
+  .card .label  { font-size: 0.65rem; }
+  .card .amount { font-size: 0.85rem; }
+
+  .typeRow { grid-template-columns: repeat(2, 1fr); }
+  .inputRow { flex-wrap: wrap; }
+  .inputDesc { flex: 100%; }
+  .listFilters select { font-size: 0.76rem; }
+}
+
+@media (max-width: 380px) {
+  .badge { display: none; }
+  .card .amount { font-size: 0.8rem; }
 }

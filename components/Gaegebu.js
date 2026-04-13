@@ -1,17 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+const TYPES = [
+  { key: 'income',   label: '수입',     emoji: '💰' },
+  { key: 'fixed',    label: '고정비',   emoji: '📌' },
+  { key: 'variable', label: '수시지출', emoji: '🛒' },
+  { key: 'invest',   label: '투자',     emoji: '📈' },
+];
 
 const CATEGORIES = {
-  income:   ['월급', '용돈', '기타수입'],
-  fixed:    ['월세/대출', '보험', '구독서비스', '통신비', '교육비', '기타고정'],
+  income:   ['월급', '부수입', '용돈', '환급', '기타'],
+  fixed:    ['월세/대출', '보험', '구독', '통신비', '교육비', '기타'],
   variable: ['식비', '교통', '쇼핑', '문화', '의료', '기타'],
+  invest:   ['주식', 'ETF', '펀드', '코인', '부동산', '기타'],
 };
 
 const TYPE_LABEL = {
-  income:   '수입',
-  fixed:    '고정비 지출',
-  variable: '수시 지출',
+  income: '수입', fixed: '고정비', variable: '수시지출', invest: '투자',
 };
 
 function today() {
@@ -22,77 +28,84 @@ function fmt(n) {
   return n.toLocaleString('ko-KR') + '원';
 }
 
-export default function Gaegebu() {
-  const [entries, setEntries] = useState([]);
-  const [form, setForm] = useState({
-    date: today(),
-    type: 'income',
-    category: CATEGORIES.income[0],
-    desc: '',
-    amount: '',
-  });
-  const [filter, setFilter] = useState({ type: 'all', category: 'all', month: '' });
+function formatAmount(val) {
+  const digits = val.replace(/[^0-9]/g, '');
+  return digits ? Number(digits).toLocaleString('ko-KR') : '';
+}
 
-  // localStorage에서 불러오기
+export default function Gaegebu() {
+  const [entries, setEntries]   = useState([]);
+  const [type, setType]         = useState('income');
+  const [category, setCategory] = useState(CATEGORIES.income[0]);
+  const [desc, setDesc]         = useState('');
+  const [amount, setAmount]     = useState('');
+  const [date, setDate]         = useState('');
+  const [showDate, setShowDate] = useState(false);
+  const [filter, setFilter]     = useState({ type: 'all', month: '' });
+  const descRef = useRef(null);
+
   useEffect(() => {
+    setDate(today());
     const saved = localStorage.getItem('gaegebu');
     if (saved) setEntries(JSON.parse(saved));
   }, []);
 
-  // localStorage에 저장
   useEffect(() => {
     localStorage.setItem('gaegebu', JSON.stringify(entries));
   }, [entries]);
 
-  function handleTypeChange(type) {
-    setForm(f => ({ ...f, type, category: CATEGORIES[type][0] }));
+  function selectType(t) {
+    setType(t);
+    setCategory(CATEGORIES[t][0]);
+    descRef.current?.focus();
   }
 
-  function handleAmountChange(e) {
-    // 숫자만 추출
-    const digits = e.target.value.replace(/[^0-9]/g, '');
-    // 천단위 콤마 표시
-    const formatted = digits ? Number(digits).toLocaleString('ko-KR') : '';
-    setForm(f => ({ ...f, amount: formatted }));
+  function selectCategory(c) {
+    setCategory(c);
+    descRef.current?.focus();
+  }
+
+  function handleAmount(e) {
+    setAmount(formatAmount(e.target.value));
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter') addEntry();
   }
 
   function addEntry() {
-    if (!form.date) return alert('날짜를 선택하세요.');
-    if (!form.desc.trim()) return alert('내용을 입력하세요.');
-    const amount = parseInt(form.amount.replace(/,/g, ''));
-    if (!amount || amount <= 0) return alert('올바른 금액을 입력하세요.');
+    if (!desc.trim()) { descRef.current?.focus(); return; }
+    const num = parseInt(amount.replace(/,/g, ''));
+    if (!num || num <= 0) return alert('금액을 입력하세요.');
 
-    setEntries(prev => [
-      ...prev,
-      { id: Date.now(), ...form, amount },
-    ]);
-    setForm(f => ({ ...f, desc: '', amount: '' }));
+    setEntries(prev => [...prev, {
+      id: Date.now(), date, type, category, desc: desc.trim(), amount: num,
+    }]);
+    setDesc('');
+    setAmount('');
+    descRef.current?.focus();
   }
 
   function deleteEntry(id) {
     setEntries(prev => prev.filter(e => e.id !== id));
   }
 
-  function clearAll() {
-    if (entries.length === 0) return;
-    if (confirm('모든 내역을 삭제하시겠습니까?')) setEntries([]);
-  }
+  // 요약
+  const sum = (t) => entries.filter(e => e.type === t).reduce((s, e) => s + e.amount, 0);
+  const totalIncome   = sum('income');
+  const totalFixed    = sum('fixed');
+  const totalVariable = sum('variable');
+  const totalInvest   = sum('invest');
+  const balance = totalIncome - totalFixed - totalVariable - totalInvest;
 
-  // 요약 계산
-  const totalIncome   = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-  const totalFixed    = entries.filter(e => e.type === 'fixed').reduce((s, e) => s + e.amount, 0);
-  const totalVariable = entries.filter(e => e.type === 'variable').reduce((s, e) => s + e.amount, 0);
-  const balance = totalIncome - totalFixed - totalVariable;
-
-  // 필터링 및 정렬
+  // 필터
   const filtered = entries
     .filter(e => {
       if (filter.type !== 'all' && e.type !== filter.type) return false;
-      if (filter.category !== 'all' && e.category !== filter.category) return false;
       if (filter.month && !e.date.startsWith(filter.month)) return false;
       return true;
     })
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
 
   return (
     <>
@@ -101,16 +114,20 @@ export default function Gaegebu() {
       {/* 요약 카드 */}
       <div className="summary">
         <div className="card income">
-          <div className="label">총 수입</div>
+          <div className="label">수입</div>
           <div className="amount">{fmt(totalIncome)}</div>
         </div>
         <div className="card fixed">
-          <div className="label">고정비 지출</div>
+          <div className="label">고정비</div>
           <div className="amount">{fmt(totalFixed)}</div>
         </div>
         <div className="card variable">
-          <div className="label">수시 지출</div>
+          <div className="label">수시지출</div>
           <div className="amount">{fmt(totalVariable)}</div>
+        </div>
+        <div className="card invest">
+          <div className="label">투자</div>
+          <div className="amount">{fmt(totalInvest)}</div>
         </div>
         <div className="card balance">
           <div className="label">잔액</div>
@@ -118,81 +135,90 @@ export default function Gaegebu() {
         </div>
       </div>
 
-      {/* 입력 폼 */}
-      <div className="formBox">
-        <h2>내역 추가</h2>
-        <div className="formRow">
-          <input
-            type="date"
-            value={form.date}
-            onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-          />
-          <select value={form.type} onChange={e => handleTypeChange(e.target.value)}>
-            <option value="income">수입</option>
-            <option value="fixed">고정비 지출</option>
-            <option value="variable">수시 지출</option>
-          </select>
-          <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-            {CATEGORIES[form.type].map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+      {/* 빠른 입력 폼 */}
+      <div className="quickForm">
+        {/* 1단계: 유형 선택 */}
+        <div className="typeRow">
+          {TYPES.map(t => (
+            <button
+              key={t.key}
+              className={`typeBtn ${t.key} ${type === t.key ? 'active' : ''}`}
+              onClick={() => selectType(t.key)}
+            >
+              <span className="typeEmoji">{t.emoji}</span>
+              <span>{t.label}</span>
+            </button>
+          ))}
         </div>
-        <div className="formRow">
+
+        {/* 2단계: 카테고리 선택 */}
+        <div className="catRow">
+          {CATEGORIES[type].map(c => (
+            <button
+              key={c}
+              className={`catChip ${category === c ? 'active ' + type : ''}`}
+              onClick={() => selectCategory(c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
+        {/* 3단계: 내용 + 금액 입력 */}
+        <div className="inputRow">
           <input
+            ref={descRef}
             type="text"
-            placeholder="내용 (예: 점심식사)"
-            value={form.desc}
-            onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
+            className="inputDesc"
+            placeholder="내용"
+            value={desc}
+            onChange={e => setDesc(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <input
             type="text"
             inputMode="numeric"
+            className="inputAmount"
             placeholder="금액"
-            value={form.amount}
-            onChange={handleAmountChange}
+            value={amount}
+            onChange={handleAmount}
+            onKeyDown={handleKeyDown}
           />
+          <button className={`addBtn ${type}`} onClick={addEntry}>추가</button>
         </div>
-        <button className="btn btnAdd" onClick={addEntry}>+ 추가</button>
+
+        {/* 날짜 (기본 접힘) */}
+        <div className="dateRow">
+          <button className="dateToggle" onClick={() => setShowDate(v => !v)}>
+            📅 {date === today() ? '오늘' : date} {showDate ? '▲' : '▼'}
+          </button>
+          {showDate && (
+            <input
+              type="date"
+              className="dateInput"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+            />
+          )}
+        </div>
       </div>
 
       {/* 내역 목록 */}
       <div className="listBox">
         <div className="listHeader">
-          <h2>내역 목록</h2>
-          <button
-            className="btn"
-            style={{ background: '#fff0f0', color: '#e53e3e', fontSize: '0.8rem', padding: '6px 12px' }}
-            onClick={clearAll}
-          >
-            전체 삭제
-          </button>
-        </div>
-
-        <div className="filterRow">
-          <select value={filter.type} onChange={e => setFilter(f => ({ ...f, type: e.target.value }))}>
-            <option value="all">전체</option>
-            <option value="income">수입만</option>
-            <option value="fixed">고정비 지출만</option>
-            <option value="variable">수시 지출만</option>
-          </select>
-          <select value={filter.category} onChange={e => setFilter(f => ({ ...f, category: e.target.value }))}>
-            <option value="all">카테고리 전체</option>
-            <optgroup label="수입">
-              {CATEGORIES.income.map(c => <option key={c} value={c}>{c}</option>)}
-            </optgroup>
-            <optgroup label="고정비 지출">
-              {CATEGORIES.fixed.map(c => <option key={c} value={c}>{c}</option>)}
-            </optgroup>
-            <optgroup label="수시 지출">
-              {CATEGORIES.variable.map(c => <option key={c} value={c}>{c}</option>)}
-            </optgroup>
-          </select>
-          <input
-            type="month"
-            value={filter.month}
-            onChange={e => setFilter(f => ({ ...f, month: e.target.value }))}
-          />
+          <h2>내역</h2>
+          <div className="listFilters">
+            <select value={filter.month} onChange={e => setFilter(f => ({ ...f, month: e.target.value }))}>
+              <option value="">전체 기간</option>
+              {[...new Set(entries.map(e => e.date.slice(0, 7)))]
+                .sort((a, b) => b.localeCompare(a))
+                .map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <select value={filter.type} onChange={e => setFilter(f => ({ ...f, type: e.target.value }))}>
+              <option value="all">전체</option>
+              {TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+            </select>
+          </div>
         </div>
 
         {filtered.length === 0 ? (
@@ -200,12 +226,13 @@ export default function Gaegebu() {
         ) : (
           filtered.map(e => (
             <div key={e.id} className="entry">
+              <div className={`entryDot ${e.type}`} />
               <div className="entryLeft">
                 <div className="entryDesc">
                   {e.desc}
                   <span className={`badge ${e.type}`}>{e.category}</span>
                 </div>
-                <div className="entryMeta">{e.date} · {TYPE_LABEL[e.type]}</div>
+                <div className="entryMeta">{e.date}</div>
               </div>
               <div className={`entryAmount ${e.type}`}>
                 {e.type === 'income' ? '+' : '-'}{fmt(e.amount)}

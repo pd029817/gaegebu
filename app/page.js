@@ -1,5 +1,5 @@
-import Gaegebu from '../components/Gaegebu';
+import { GaegebuClient } from '../components/ClientOnly';
 
 export default function Home() {
-  return <Gaegebu />;
+  return <GaegebuClient />;
 }

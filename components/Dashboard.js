@@ -40,76 +40,49 @@ export default function Dashboard() {
     if (saved) setEntries(JSON.parse(saved));
   }, []);
 
-  // 전체 연도 목록
   const years = [...new Set(entries.map(e => e.date.slice(0, 4)))]
-    .map(Number)
-    .sort((a, b) => b - a);
+    .map(Number).sort((a, b) => b - a);
+  if (!years.includes(new Date().getFullYear())) years.unshift(new Date().getFullYear());
 
-  if (years.length === 0 || !years.includes(year)) {
-    const currentYear = new Date().getFullYear();
-    if (!years.includes(currentYear)) years.unshift(currentYear);
-  }
-
-  // 선택 연도 데이터 월별 집계
   const monthlyData = MONTHS.map((label, i) => {
-    const month = String(i + 1).padStart(2, '0');
-    const prefix = `${year}-${month}`;
+    const prefix = `${year}-${String(i + 1).padStart(2, '0')}`;
     const rows = entries.filter(e => e.date.startsWith(prefix));
-
     const income   = rows.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const fixed    = rows.filter(e => e.type === 'fixed').reduce((s, e) => s + e.amount, 0);
     const variable = rows.filter(e => e.type === 'variable').reduce((s, e) => s + e.amount, 0);
-    const balance  = income - fixed - variable;
-
-    return { label, income, fixed, variable, balance };
+    const invest   = rows.filter(e => e.type === 'invest').reduce((s, e) => s + e.amount, 0);
+    const balance  = income - fixed - variable - invest;
+    return { label, income, fixed, variable, invest, balance };
   });
 
-  // 연간 합계
   const totalIncome   = monthlyData.reduce((s, m) => s + m.income, 0);
   const totalFixed    = monthlyData.reduce((s, m) => s + m.fixed, 0);
   const totalVariable = monthlyData.reduce((s, m) => s + m.variable, 0);
-  const totalBalance  = totalIncome - totalFixed - totalVariable;
+  const totalInvest   = monthlyData.reduce((s, m) => s + m.invest, 0);
+  const totalBalance  = totalIncome - totalFixed - totalVariable - totalInvest;
 
   return (
     <>
       <h1>📊 대시보드</h1>
 
-      {/* 연도 선택 */}
       <div className="yearSelector">
         {years.map(y => (
-          <button
-            key={y}
-            className={`yearBtn ${y === year ? 'active' : ''}`}
-            onClick={() => setYear(y)}
-          >
+          <button key={y} className={`yearBtn ${y === year ? 'active' : ''}`} onClick={() => setYear(y)}>
             {y}년
           </button>
         ))}
       </div>
 
-      {/* 연간 요약 카드 */}
-      <div className="summary">
-        <div className="card income">
-          <div className="label">연간 수입</div>
-          <div className="amount">{fmtFull(totalIncome)}</div>
-        </div>
-        <div className="card fixed">
-          <div className="label">고정비 지출</div>
-          <div className="amount">{fmtFull(totalFixed)}</div>
-        </div>
-        <div className="card variable">
-          <div className="label">수시 지출</div>
-          <div className="amount">{fmtFull(totalVariable)}</div>
-        </div>
-        <div className="card balance">
-          <div className="label">연간 잔액</div>
-          <div className="amount">{fmtFull(totalBalance)}</div>
-        </div>
+      <div className="summary" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        <div className="card income"><div className="label">수입</div><div className="amount">{fmtFull(totalIncome)}</div></div>
+        <div className="card fixed"><div className="label">고정비</div><div className="amount">{fmtFull(totalFixed)}</div></div>
+        <div className="card variable"><div className="label">수시지출</div><div className="amount">{fmtFull(totalVariable)}</div></div>
+        <div className="card invest"><div className="label">투자</div><div className="amount">{fmtFull(totalInvest)}</div></div>
+        <div className="card balance"><div className="label">잔액</div><div className="amount">{fmtFull(totalBalance)}</div></div>
       </div>
 
-      {/* 월별 수입/지출 막대 차트 */}
       <div className="chartBox">
-        <h2 className="chartTitle">{year}년 월별 수입 · 지출</h2>
+        <h2 className="chartTitle">{year}년 월별 수입 · 지출 · 투자</h2>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={monthlyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -117,14 +90,14 @@ export default function Dashboard() {
             <YAxis tickFormatter={fmt} tick={{ fontSize: 11 }} width={48} />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            <Bar dataKey="income"   name="수입"       fill="#68d391" radius={[4,4,0,0]} />
-            <Bar dataKey="fixed"    name="고정비 지출" fill="#f6ad55" radius={[4,4,0,0]} />
-            <Bar dataKey="variable" name="수시 지출"   fill="#fc8181" radius={[4,4,0,0]} />
+            <Bar dataKey="income"   name="수입"    fill="#68d391" radius={[4,4,0,0]} />
+            <Bar dataKey="fixed"    name="고정비"  fill="#f6ad55" radius={[4,4,0,0]} />
+            <Bar dataKey="variable" name="수시지출" fill="#fc8181" radius={[4,4,0,0]} />
+            <Bar dataKey="invest"   name="투자"    fill="#76e4f7" radius={[4,4,0,0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* 월별 잔액 추이 라인 차트 */}
       <div className="chartBox">
         <h2 className="chartTitle">{year}년 월별 잔액 추이</h2>
         <ResponsiveContainer width="100%" height={220}>
@@ -133,45 +106,36 @@ export default function Dashboard() {
             <XAxis dataKey="label" tick={{ fontSize: 12 }} />
             <YAxis tickFormatter={fmt} tick={{ fontSize: 11 }} width={48} />
             <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="balance"
-              name="잔액"
-              stroke="#63b3ed"
-              strokeWidth={2.5}
-              dot={{ r: 4, fill: '#63b3ed' }}
-              activeDot={{ r: 6 }}
-            />
+            <Line type="monotone" dataKey="balance" name="잔액" stroke="#63b3ed" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      {/* 월별 상세 테이블 */}
       <div className="tableBox">
         <h2 className="chartTitle">{year}년 월별 상세</h2>
         <div className="tableWrap">
           <table className="table">
             <thead>
               <tr>
-                <th>월</th>
-                <th>수입</th>
-                <th>고정비</th>
-                <th>수시지출</th>
-                <th>잔액</th>
+                <th>월</th><th>수입</th><th>고정비</th><th>수시지출</th><th>투자</th><th>잔액</th>
               </tr>
             </thead>
             <tbody>
-              {monthlyData.map((m, i) => (
-                <tr key={i} className={m.income === 0 && m.fixed === 0 && m.variable === 0 ? 'empty-row' : ''}>
-                  <td>{m.label}</td>
-                  <td className="income">{m.income > 0 ? fmtFull(m.income) : '-'}</td>
-                  <td className="fixed">{m.fixed > 0 ? fmtFull(m.fixed) : '-'}</td>
-                  <td className="variable">{m.variable > 0 ? fmtFull(m.variable) : '-'}</td>
-                  <td className={m.balance >= 0 ? 'income' : 'variable'}>
-                    {m.income === 0 && m.fixed === 0 && m.variable === 0 ? '-' : fmtFull(m.balance)}
-                  </td>
-                </tr>
-              ))}
+              {monthlyData.map((m, i) => {
+                const empty = m.income === 0 && m.fixed === 0 && m.variable === 0 && m.invest === 0;
+                return (
+                  <tr key={i} className={empty ? 'empty-row' : ''}>
+                    <td>{m.label}</td>
+                    <td className="income">{m.income > 0 ? fmtFull(m.income) : '-'}</td>
+                    <td className="fixed">{m.fixed > 0 ? fmtFull(m.fixed) : '-'}</td>
+                    <td className="variable">{m.variable > 0 ? fmtFull(m.variable) : '-'}</td>
+                    <td className="invest">{m.invest > 0 ? fmtFull(m.invest) : '-'}</td>
+                    <td className={m.balance >= 0 ? 'income' : 'variable'}>
+                      {empty ? '-' : fmtFull(m.balance)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
             <tfoot>
               <tr className="total-row">
@@ -179,6 +143,7 @@ export default function Dashboard() {
                 <td className="income">{fmtFull(totalIncome)}</td>
                 <td className="fixed">{fmtFull(totalFixed)}</td>
                 <td className="variable">{fmtFull(totalVariable)}</td>
+                <td className="invest">{fmtFull(totalInvest)}</td>
                 <td className={totalBalance >= 0 ? 'income' : 'variable'}>{fmtFull(totalBalance)}</td>
               </tr>
             </tfoot>
