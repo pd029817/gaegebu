@@ -46,13 +46,12 @@ export default function Gaegebu() {
 
   useEffect(() => {
     setDate(today());
-    const saved = localStorage.getItem('gaegebu');
-    if (saved) setEntries(JSON.parse(saved));
+    fetch('/api/entries')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setEntries(data.map(e => ({ ...e, desc: e.description })));
+      });
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('gaegebu', JSON.stringify(entries));
-  }, [entries]);
 
   function selectType(t) {
     setType(t);
@@ -73,20 +72,39 @@ export default function Gaegebu() {
     if (e.key === 'Enter') addEntry();
   }
 
-  function addEntry() {
-    if (!desc.trim()) { descRef.current?.focus(); return; }
+  async function addEntry() {
+    if (!desc.trim()) { alert('내용을 입력하세요.'); descRef.current?.focus(); return; }
     const num = parseInt(amount.replace(/,/g, ''));
     if (!num || num <= 0) return alert('금액을 입력하세요.');
 
-    setEntries(prev => [...prev, {
-      id: Date.now(), date, type, category, desc: desc.trim(), amount: num,
-    }]);
+    const newEntry = {
+      id: Date.now(), date, type, category, description: desc.trim(), amount: num,
+    };
+
+    const res = await fetch('/api/entries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEntry),
+    });
+    const result = await res.json();
+    if (!res.ok) return alert('저장 실패: ' + result.error);
+
+    setEntries(prev => [...prev, { ...newEntry, desc: newEntry.description }]);
     setDesc('');
     setAmount('');
     descRef.current?.focus();
   }
 
-  function deleteEntry(id) {
+  async function deleteEntry(id) {
+    const res = await fetch('/api/entries', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      const result = await res.json();
+      return alert('삭제 실패: ' + result.error);
+    }
     setEntries(prev => prev.filter(e => e.id !== id));
   }
 

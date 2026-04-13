@@ -36,8 +36,11 @@ export default function Dashboard() {
   const [year, setYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    const saved = localStorage.getItem('gaegebu');
-    if (saved) setEntries(JSON.parse(saved));
+    fetch('/api/entries')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setEntries(data.map(e => ({ ...e, desc: e.description })));
+      });
   }, []);
 
   const years = [...new Set(entries.map(e => e.date.slice(0, 4)))]
