@@ -1,5 +1,6 @@
 import "./globals.css";
 import SwRegister from "../components/SwRegister";
+import Nav from "../components/Nav";
 
 export const metadata = {
   title: "가계부",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko">
       <body>
+        <Nav />
         {children}
         <SwRegister />
       </body>

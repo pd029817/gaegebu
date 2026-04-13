@@ -326,3 +326,143 @@ h1 {
 
   .badge { display: none; }
 }
+
+/* ── 네비게이션 ── */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.navItem {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #888;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.navItem:hover { color: #3182ce; }
+.navItem.active { background: #3182ce; color: white; }
+
+/* ── 대시보드 ── */
+.yearSelector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.yearBtn {
+  padding: 6px 18px;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.2s;
+}
+
+.yearBtn:hover { border-color: #3182ce; color: #3182ce; }
+.yearBtn.active { background: #3182ce; border-color: #3182ce; color: white; }
+
+.chartBox {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 700px;
+  margin: 0 auto 20px;
+}
+
+.chartTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.chartTooltip {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-size: 0.85rem;
+}
+
+.chartTooltipTitle {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+/* ── 테이블 ── */
+.tableBox {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 700px;
+  margin: 0 auto 20px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.table th {
+  padding: 10px 12px;
+  text-align: right;
+  background: #f7fafc;
+  color: #666;
+  font-weight: 600;
+  border-bottom: 2px solid #eee;
+}
+
+.table th:first-child { text-align: left; }
+
+.table td {
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 1px solid #f5f5f5;
+  color: #444;
+}
+
+.table td:first-child { text-align: left; font-weight: 500; }
+
+.table td.income   { color: #38a169; }
+.table td.fixed    { color: #c05621; }
+.table td.variable { color: #e53e3e; }
+
+.table tr.empty-row td { color: #ccc; }
+
+.table tfoot .total-row td {
+  font-weight: 700;
+  background: #f7fafc;
+  border-top: 2px solid #eee;
+}
+
+@media (max-width: 600px) {
+  .chartBox, .tableBox {
+    padding: 16px 12px;
+    border-radius: 10px;
+  }
+
+  .table { font-size: 0.8rem; }
+  .table th, .table td { padding: 8px 8px; }
+}
