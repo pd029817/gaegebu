@@ -48,10 +48,18 @@ export default function Gaegebu() {
     setForm(f => ({ ...f, type, category: CATEGORIES[type][0] }));
   }
 
+  function handleAmountChange(e) {
+    // 숫자만 추출
+    const digits = e.target.value.replace(/[^0-9]/g, '');
+    // 천단위 콤마 표시
+    const formatted = digits ? Number(digits).toLocaleString('ko-KR') : '';
+    setForm(f => ({ ...f, amount: formatted }));
+  }
+
   function addEntry() {
     if (!form.date) return alert('날짜를 선택하세요.');
     if (!form.desc.trim()) return alert('내용을 입력하세요.');
-    const amount = parseInt(form.amount);
+    const amount = parseInt(form.amount.replace(/,/g, ''));
     if (!amount || amount <= 0) return alert('올바른 금액을 입력하세요.');
 
     setEntries(prev => [
@@ -138,11 +146,11 @@ export default function Gaegebu() {
             onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
           />
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             placeholder="금액"
-            min="0"
             value={form.amount}
-            onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
+            onChange={handleAmountChange}
           />
         </div>
         <button className="btn btnAdd" onClick={addEntry}>+ 추가</button>
